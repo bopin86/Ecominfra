@@ -1,0 +1,200 @@
+erDiagram
+
+  TENANT {
+    uuid tenant_id PK
+    string name
+    string status
+    string default_currency
+    string default_language
+  }
+
+  FRANCHISE {
+    uuid franchise_id PK
+    uuid tenant_id FK
+    string name
+    string status
+  }
+
+  STORE {
+    uuid store_id PK
+    uuid franchise_id FK
+    uuid tenant_id FK
+    string name
+    string status
+    string store_type
+  }
+
+  %% ── Polymorphic shared tables ─────────────────────────────────────
+  %% entity_type + entity_id form a logical polymorphic FK.
+  %% No DB-level FK constraint — enforced at application/repository layer.
+  %% Composite index on (entity_type, entity_id) required on all shared tables.
+
+  ADDRESS {
+    uuid address_id PK
+    string entity_type "TENANT | FRANCHISE | STORE"
+    uuid entity_id "polymorphic FK"
+    string address_type "HQ | BILLING | LEGAL | PHYSICAL"
+    string line1
+    string line2
+    string city
+    string state
+    string postal_code
+    string country_code
+    decimal latitude
+    decimal longitude
+  }
+
+  LOCALE {
+    uuid locale_id PK
+    string entity_type "TENANT | FRANCHISE | STORE"
+    uuid entity_id "polymorphic FK"
+    string language_code
+    string currency_code
+    string timezone
+    boolean is_default
+  }
+
+  CONTACT {
+    uuid contact_id PK
+    string entity_type "TENANT | FRANCHISE | STORE"
+    uuid entity_id "polymorphic FK"
+    string contact_type "PRIMARY | BILLING | SUPPORT | MANAGER"
+    string name
+    string email
+    string phone
+  }
+
+  %% BRANDING: Store inherits from Franchise — no store-level branding row
+  BRANDING {
+    uuid branding_id PK
+    string entity_type "TENANT | FRANCHISE"
+    uuid entity_id "polymorphic FK"
+    string logo_url
+    string primary_color
+    string domain
+    string favicon_url
+  }
+
+  %% TAX_REGISTRATION: was FRANCHISE_TAX — corrected to polymorphic.
+  %% Tenant holds corporate tax registrations.
+  %% Franchise holds jurisdiction-level registrations.
+  %% Store may hold local sales tax registrations.
+  TAX_REGISTRATION {
+    uuid tax_id PK
+    string entity_type "TENANT | FRANCHISE | STORE"
+    uuid entity_id "polymorphic FK"
+    string tax_type "VAT | GST | SALES_TAX | CORPORATE"
+    string registration_number
+    string jurisdiction
+    string country_code
+  }
+
+  %% CONFIGURATION: was TENANT_CONFIGURATION — corrected to polymorphic.
+  %% Tenant = platform-wide defaults.
+  %% Franchise = override defaults for its stores.
+  %% Store = most granular override.
+  %% Resolution order: STORE > FRANCHISE > TENANT (cascade fallback).
+  CONFIGURATION {
+    uuid config_id PK
+    string entity_type "TENANT | FRANCHISE | STORE"
+    uuid entity_id "polymorphic FK"
+    string config_key
+    string config_value
+    string service_scope "CatalogService | PricingService | PaymentService | NotificationService"
+  }
+
+  %% ── Store-only tables ─────────────────────────────────────────────
+  %% These have no equivalent at Tenant or Franchise level — not polymorphic.
+
+  STORE_OPERATING_HOURS {
+    uuid hours_id PK
+    uuid store_id FK
+    string day_of_week
+    time open_time
+    time close_time
+    boolean is_closed
+  }
+
+  STORE_HOLIDAY {
+    uuid holiday_id PK
+    uuid store_id FK
+    date holiday_date
+    string description
+    boolean is_closed
+    time override_open
+    time override_close
+  }
+
+  STORE_CAPABILITY {
+    uuid capability_id PK
+    uuid store_id FK
+    string capability_type
+    integer capacity
+  }
+
+  STORE_DELIVERY_ZONE {
+    uuid zone_id PK
+    uuid store_id FK
+    string zone_code
+    string postal_codes
+  }
+
+  %% ── Core hierarchy ────────────────────────────────────────────────
+  %% 1:N — one tenant owns many franchises
+  TENANT ||--o{ FRANCHISE : "1 : many"
+  %% 1:N — one franchise operates many stores
+  FRANCHISE ||--o{ STORE : "1 : many"
+
+  %% ── ADDRESS (polymorphic) ─────────────────────────────────────────
+  %% 1:N — tenant has many addresses (HQ, billing, legal etc.)
+  TENANT ||--o{ ADDRESS : "1 : many"
+  %% 1:N — franchise has many addresses
+  FRANCHISE ||--o{ ADDRESS : "1 : many"
+  %% 1:1 — store has exactly one physical address
+  STORE ||--|| ADDRESS : "1 : 1 physical"
+
+  %% ── LOCALE (polymorphic) ──────────────────────────────────────────
+  %% 1:N — tenant defines many supported locales
+  TENANT ||--o{ LOCALE : "1 : many"
+  %% 1:N — franchise overrides with its own locale set
+  FRANCHISE ||--o{ LOCALE : "1 : many"
+  %% 1:0..1 — store optionally overrides franchise locale
+  STORE ||--o| LOCALE : "1 : 0..1 override"
+
+  %% ── CONTACT (polymorphic) ─────────────────────────────────────────
+  %% 1:N — all three levels carry operational contacts
+  TENANT ||--o{ CONTACT : "1 : many"
+  FRANCHISE ||--o{ CONTACT : "1 : many"
+  STORE ||--o{ CONTACT : "1 : many"
+
+  %% ── BRANDING (polymorphic) ────────────────────────────────────────
+  %% 1:1 — tenant always has exactly one branding profile
+  TENANT ||--|| BRANDING : "1 : 1"
+  %% 1:0..1 — franchise optionally overrides tenant branding
+  FRANCHISE ||--o| BRANDING : "1 : 0..1 override"
+
+  %% ── TAX_REGISTRATION (polymorphic) ───────────────────────────────
+  %% 1:N — tenant has corporate-level tax registrations
+  TENANT ||--o{ TAX_REGISTRATION : "1 : many"
+  %% 1:N — franchise has jurisdiction-level registrations
+  FRANCHISE ||--o{ TAX_REGISTRATION : "1 : many"
+  %% 1:N — store may have local tax registrations
+  STORE ||--o{ TAX_REGISTRATION : "1 : many"
+
+  %% ── CONFIGURATION (polymorphic) ───────────────────────────────────
+  %% 1:N — tenant defines platform-wide base config
+  TENANT ||--o{ CONFIGURATION : "1 : many"
+  %% 1:N — franchise overrides config for its stores
+  FRANCHISE ||--o{ CONFIGURATION : "1 : many"
+  %% 1:N — store overrides at the most granular level
+  STORE ||--o{ CONFIGURATION : "1 : many"
+
+  %% ── Store-only ────────────────────────────────────────────────────
+  %% 1:N — store has many weekly operating hour entries
+  STORE ||--o{ STORE_OPERATING_HOURS : "1 : many"
+  %% 1:N — store has many planned holiday closure exceptions
+  STORE ||--o{ STORE_HOLIDAY : "1 : many"
+  %% 1:N — store has many service capability records
+  STORE ||--o{ STORE_CAPABILITY : "1 : many"
+  %% 1:N — store serves many delivery zones
+  STORE ||--o{ STORE_DELIVERY_ZONE : "1 : many"
