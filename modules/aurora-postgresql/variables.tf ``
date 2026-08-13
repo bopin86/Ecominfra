@@ -1,0 +1,121 @@
+variable "name" {
+  description = "Aurora cluster name"
+  type        = string
+}
+
+variable "environment" {
+  description = "Environment name such as dev, qa, prod"
+  type        = string
+}
+
+variable "engine_version" {
+  description = "Aurora PostgreSQL engine version"
+  type        = string
+  default     = "16.4"
+}
+
+variable "database_name" {
+  description = "Initial database name"
+  type        = string
+  default     = "appdb"
+}
+
+variable "master_username" {
+  description = "Master database username"
+  type        = string
+  default     = "dbadmin"
+}
+
+variable "port" {
+  description = "Database port"
+  type        = number
+  default     = 5432
+}
+
+variable "vpc_id" {
+  description = "VPC ID where Aurora will be created"
+  type        = string
+}
+
+variable "db_subnet_ids" {
+  description = "Private database subnet IDs"
+  type        = list(string)
+}
+
+variable "allowed_security_group_ids" {
+  description = "Security groups allowed to access Aurora PostgreSQL"
+  type        = list(string)
+  default     = []
+}
+
+variable "allowed_cidr_blocks" {
+  description = "CIDR blocks allowed to access Aurora PostgreSQL"
+  type        = list(string)
+  default     = []
+}
+
+variable "instance_class" {
+  description = "Aurora instance class"
+  type        = string
+  default     = "db.t4g.medium"
+}
+
+variable "instance_count" {
+  description = "Number of Aurora instances. Minimum 1."
+  type        = number
+  default     = 1
+}
+
+variable "backup_retention_period" {
+  description = "Backup retention period in days"
+  type        = number
+  default     = 7
+}
+
+variable "preferred_backup_window" {
+  description = "Preferred backup window"
+  type        = string
+  default     = "18:30-19:30"
+}
+
+variable "preferred_maintenance_window" {
+  description = "Preferred maintenance window"
+  type        = string
+  default     = "sun:20:00-sun:21:00"
+}
+
+variable "deletion_protection" {
+  description = "Enable deletion protection"
+  type        = bool
+  default     = true
+}
+
+variable "apply_immediately" {
+  description = "Apply changes immediately"
+  type        = bool
+  default     = false
+}
+
+variable "storage_encrypted" {
+  description = "Enable storage encryption"
+  type        = bool
+  default     = true
+}
+
+variable "kms_key_id" {
+  description = "KMS key ARN for encryption. If null, AWS managed key is used."
+  type        = string
+  default     = null
+}
+
+variable "enabled_cloudwatch_logs_exports" {
+  description = "CloudWatch logs exports"
+  type        = list(string)
+  default     = ["postgresql"]
+}
+
+variable "tags" {
+  description = "Common tags"
+  type        = map(string)
+  default     = {}
+}
