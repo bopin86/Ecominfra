@@ -5,7 +5,7 @@ module "aurora_postgresql" {
   environment = var.environment
 
   engine_version = "16.4"
-  database_name  = "ecomdb"
+  database_name  = "devecomdb"
   master_username = "dbadmin"
 
   vpc_id        = var.vpc_id
