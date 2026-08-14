@@ -1,31 +1,27 @@
-module "aurora_postgresql" {
+module "aurora" {
   source = "../../modules/aurora-postgresql"
 
-  name        = "dev-ecom-aurora-postgresql"
-  environment = var.environment
-
+  name           = "dev-aurora-postgresql"
   engine_version = "16.4"
-  database_name  = "devecomdb"
-  master_username = "dbadmin"
 
-  vpc_id        = var.vpc_id
-  db_subnet_ids = var.db_subnet_ids
-  db_cluster_parameter_group_name = var.cluster_parameter_group_name
-  db_parameter_group_name         = var.db_parameter_group_name
-  allowed_security_group_ids = var.app_security_group_ids
+  vpc_id          = module.vpc.vpc_id
+  data_subnet_ids = module.vpc.data_subnet_ids
 
-  instance_class = "db.t4g.micro"
-  instance_count = 1
+  security_group_ids = [
+    module.aurora_sg.security_group_id
+  ]
 
-  backup_retention_period = 7
-  deletion_protection     = false
-  apply_immediately       = true
+  instances = {
+    one = {
+      instance_class = "db.t4g.medium"
+    }
+  }
 
-  storage_encrypted = true
+  cluster_parameter_group_name = "default.aurora-postgresql16"
+  db_parameter_group_name      = "default.aurora-postgresql16"
 
   tags = {
-    Project     = "Ecominfra"
     Environment = "dev"
-    Owner       = "Bopin"
+    Project     = "Ecominfra"
   }
 }
