@@ -26,6 +26,16 @@ variable "master_username" {
   default     = "dbadmin"
 }
 
+variable "cluster_parameter_group_name" {
+  type    = string
+  default = null
+}
+
+variable "db_parameter_group_name" {
+  type    = string
+  default = null
+}
+
 variable "port" {
   description = "Database port"
   type        = number
