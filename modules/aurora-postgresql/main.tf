@@ -60,32 +60,9 @@ resource "aws_security_group_rule" "egress_all" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
-resource "aws_rds_cluster_parameter_group" "this" {
-  name        = "${var.name}-cluster-pg"
-  family      = "aurora-postgresql16"
-  description = "Aurora PostgreSQL cluster parameter group for ${var.name}"
-
-  parameter {
-    name  = "log_min_duration_statement"
-    value = "1000"
-  }
-
-  parameter {
-    name  = "rds.force_ssl"
-    value = "1"
-  }
-
-  tags = local.common_tags
-}
-
-resource "aws_db_parameter_group" "this" {
-  name        = "${var.name}-db-pg"
-  family      = "aurora-postgresql16"
-  description = "Aurora PostgreSQL DB parameter group for ${var.name}"
-
-  tags = local.common_tags
-}
-
+db_cluster_parameter_group_name = var.cluster_parameter_group_name
+db_parameter_group_name         = var.db_parameter_group_name
+  
 resource "aws_rds_cluster" "this" {
   cluster_identifier = var.name
 
