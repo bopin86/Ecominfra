@@ -10,10 +10,11 @@ module "aurora_postgresql" {
 
   vpc_id        = var.vpc_id
   db_subnet_ids = var.db_subnet_ids
-
+  db_cluster_parameter_group_name = var.cluster_parameter_group_name
+  db_parameter_group_name         = var.db_parameter_group_name
   allowed_security_group_ids = var.app_security_group_ids
 
-  instance_class = "db.t4g.medium"
+  instance_class = "db.t4g.micro"
   instance_count = 1
 
   backup_retention_period = 7
