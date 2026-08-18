@@ -1,15 +1,20 @@
-output "aurora_cluster_endpoint" {
-  value = module.aurora_postgresql.cluster_endpoint
+variable "aws_region" {
+  description = "AWS region"
+  type        = string
+  default     = "ap-south-1"
 }
 
-output "aurora_reader_endpoint" {
-  value = module.aurora_postgresql.reader_endpoint
+variable "vpc_id" {
+  description = "Existing VPC ID"
+  type        = string
 }
 
-output "aurora_security_group_id" {
-  value = module.aurora_postgresql.security_group_id
+variable "data_subnet_ids" {
+  description = "Private data subnet IDs for Aurora"
+  type        = list(string)
 }
 
-output "aurora_master_user_secret_arn" {
-  value = module.aurora_postgresql.master_user_secret_arn
+variable "ecs_service_security_group_id" {
+  description = "ECS service security group allowed to connect to Aurora"
+  type        = string
 }

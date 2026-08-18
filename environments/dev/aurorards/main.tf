@@ -1,27 +1,40 @@
 module "aurora" {
   source = "../../modules/aurora-postgresql"
 
-  name           = "dev-aurora-postgresql"
+  name           = "dev-ecom-aurora-postgresql"
   engine_version = "16.4"
 
-  vpc_id          = module.vpc.vpc_id
-  data_subnet_ids = module.vpc.data_subnet_ids
+  vpc_id          = var.vpc_id
+  data_subnet_ids = var.data_subnet_ids
 
-  security_group_ids = [
-    module.aurora_sg.security_group_id
-  ]
+  instance_class = "db.t4g.medium"
 
   instances = {
-    one = {
-      instance_class = "db.t4g.medium"
-    }
+    one = {}
   }
+
+  master_username = "dbadmin"
 
   cluster_parameter_group_name = "default.aurora-postgresql16"
   db_parameter_group_name      = "default.aurora-postgresql16"
 
+  security_group_ingress_rules = {
+    ecs_service = {
+      referenced_security_group_id = var.ecs_service_security_group_id
+      from_port                    = 5432
+      to_port                      = 5432
+      ip_protocol                  = "tcp"
+      description                  = "Allow PostgreSQL access from ECS service"
+    }
+  }
+
+  backup_retention_period = 7
+  deletion_protection     = false
+  apply_immediately       = true
+
   tags = {
-    Environment = "dev"
     Project     = "Ecominfra"
+    Environment = "dev"
+    ManagedBy   = "Terraform"
   }
 }

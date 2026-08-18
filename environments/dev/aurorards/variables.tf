@@ -1,11 +1,7 @@
 variable "aws_region" {
   description = "AWS region"
   type        = string
-}
-
-variable "environment" {
-  description = "Environment name"
-  type        = string
+  default     = "us-east-1"
 }
 
 variable "vpc_id" {
@@ -13,13 +9,12 @@ variable "vpc_id" {
   type        = string
 }
 
-variable "db_subnet_ids" {
-  description = "Private database subnet IDs"
+variable "data_subnet_ids" {
+  description = "Private data subnet IDs for Aurora"
   type        = list(string)
 }
 
-variable "app_security_group_ids" {
-  description = "Application or ECS security groups allowed to connect to Aurora"
-  type        = list(string)
-  default     = []
+variable "ecs_service_security_group_id" {
+  description = "ECS service security group allowed to connect to Aurora"
+  type        = string
 }
