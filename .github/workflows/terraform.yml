@@ -19,7 +19,7 @@ on:
     paths:
       - "modules/**"
       - "environments/dev/**"
-      - ".github/workflows/terraform-dev.yml"
+      - ".github/workflows/terraform.yml"
 
 permissions:
   id-token: write
