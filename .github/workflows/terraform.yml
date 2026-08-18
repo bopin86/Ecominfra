@@ -31,7 +31,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: environments/dev
+        working-directory: environments/dev/aurorards
 
     steps:
       - name: Checkout repository
