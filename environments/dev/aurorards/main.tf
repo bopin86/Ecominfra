@@ -1,7 +1,7 @@
 module "aurora" {
   source = "../../../modules/aurora-postgresql"
 
-  name = "dev-ecom-aurora-postgresql"
+  name           = "dev-ecom-aurora-postgresql"
   engine_version = "16.4"
 
   vpc_id          = var.vpc_id
