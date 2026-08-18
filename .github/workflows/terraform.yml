@@ -1,24 +1,72 @@
-name: Terraform
+name: Terraform Dev Aurora
 
 on:
   workflow_dispatch:
+    inputs:
+      action:
+        description: "Terraform action"
+        required: true
+        default: "plan"
+        type: choice
+        options:
+          - plan
+          - apply
+          - destroy
+
+  push:
+    branches:
+      - main
+    paths:
+      - "modules/**"
+      - "environments/dev/**"
+      - ".github/workflows/terraform-dev.yml"
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  test:
+  terraform:
     runs-on: ubuntu-latest
 
-    steps:
-      - uses: actions/checkout@v4
+    defaults:
+      run:
+        working-directory: environments/dev
 
-      - name: Configure AWS Credentials
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Configure AWS Credentials using OIDC
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::829700964773:role/GitHubTerraformRole
-          aws-region: ap-south-1
+          aws-region: us-east-1
+          role-session-name: GitHubActionsTerraform
 
       - name: Verify AWS Identity
         run: aws sts get-caller-identity
+
+      - name: Terraform Format Check
+        run: terraform fmt -check -recursive ../..
+
+      - name: Terraform Init
+        run: terraform init -input=false
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Plan
+        if: github.event.inputs.action == 'plan' || github.event_name == 'push'
+        run: terraform plan -input=false
+
+      - name: Terraform Apply
+        if: github.event.inputs.action == 'apply'
+        run: terraform apply -auto-approve -input=false
+
+      - name: Terraform Destroy
+        if: github.event.inputs.action == 'destroy'
+        run: terraform destroy -auto-approve -input=false

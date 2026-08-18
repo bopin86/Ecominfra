@@ -1,0 +1,29 @@
+variable "name" {}
+variable "engine_version" {}
+variable "vpc_id" {}
+variable "data_subnet_ids" {}
+variable "security_group_ids" {}
+
+variable "cluster_parameter_group_name" {
+  default = null
+}
+
+variable "db_parameter_group_name" {
+  default = null
+}
+
+variable "master_username" {
+  default = "dbadmin"
+}
+
+variable "backup_retention_period" {
+  default = 7
+}
+
+variable "instances" {
+  type = map(any)
+}
+
+variable "tags" {
+  type = map(string)
+}
