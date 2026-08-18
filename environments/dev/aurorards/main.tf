@@ -1,5 +1,5 @@
 module "aurora" {
-  source = "../../modules/aurora-postgresql"
+  source = "../../../modules/aurora-postgresql"
 
   name           = "dev-ecom-aurora-postgresql"
   engine_version = "16.4"
