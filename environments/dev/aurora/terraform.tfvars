@@ -1,11 +1,11 @@
-region = "us-east-1"
+region = "eu-west-3"
 
 name           = "dev-aurora-db-postgres"
 engine         = "aurora-postgresql"
 engine_version = "17.5"
 
 # Dev sizing - single instance
-cluster_instance_class = "db.r8g.large"
+cluster_instance_class = "db.t4g.large"
 
 vpc_id               = "vpc-12345678"
 db_subnet_group_name = "db-subnet-group"
