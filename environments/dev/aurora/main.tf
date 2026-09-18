@@ -1,5 +1,5 @@
 module "aurora" {
-  source = "../../modules/aurora"
+  source = "../../../modules/aurora"
 
   name           = var.name
   engine         = var.engine
